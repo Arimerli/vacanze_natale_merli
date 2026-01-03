@@ -103,7 +103,7 @@ async def aggiungi_elementi(giocatori, partite):
                 await giocatori.update_one({'nome': g2["nome"]},
                                            {'$set': {'qualifica': "semifinale"}})
             else:
-                vincitore = g2["nome"]
+                vincitore = g1["nome"]
                 await giocatori.update_one({'nome': g1["nome"]},
                                            {'$set': {'qualifica': "semifinale"}})
             stato = "terminata"
@@ -141,8 +141,10 @@ async def aggiungi_elementi(giocatori, partite):
         "giocatore1": semifinali[0]["nome"],
         "giocatore2": semifinali[1]["nome"],
         "minutaggio": 0,
-        "punteggio1": 0,
-        "punteggio2": 0,
+        "punteggioset1": [],
+        "punteggioset2": [],
+        "punteggioset3": [],
+        "vincitore": "",
         "stato": "programmata"
     })
 

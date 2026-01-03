@@ -14,30 +14,76 @@
     <div class="sensor-box temperature" onclick="window.location.href='./selezionato?sensor=temperature'">
         <h3>{{ partite[0]['giocatore1'] }} VS {{ partite[0]['giocatore2'] }}</h3>
         <h4>{{ partite[0]['stato'] }}</h4>
-        <h2>{{ partite[0]['punteggio1'] }}:{{ partite[0]['punteggio2'] }}</h2>
+        <div class="set-scores">
+            {% for i in range(1, 4) %}
+                {% if len(partite[0]['punteggioset' + str(i)]) > 0 %}
+                    <div class="set">
+                        <div class="score">{{ partite[0]['punteggioset' + str(i)][0] }}</div>
+                        <div class="score">{{ partite[0]['punteggioset' + str(i)][1] }}</div>
+                    </div>
+                {% end %}
+            {% end %}
+        </div>
     </div>
     <br>
     <div class="sensor-box humidity" onclick="window.location.href='./selezionato?sensor=humidity'">
         <h3>{{ partite[1]['giocatore1'] }} VS {{ partite[1]['giocatore2'] }}</h3>
         <h4>{{ partite[1]['stato'] }}</h4>
-        <h2>{{ partite[1]['punteggio1'] }}:{{ partite[1]['punteggio2'] }}</h2>
+        <div class="set-scores">
+            {% for i in range(1, 4) %}
+                {% if len(partite[1]['punteggioset' + str(i)]) > 0 %}
+                    <div class="set">
+                        <div class="score">{{ partite[1]['punteggioset' + str(i)][0] }}</div>
+                        <div class="score">{{ partite[1]['punteggioset' + str(i)][1] }}</div>
+                    </div>
+                {% end %}
+            {% end %}
+        </div>
     </div>
     <br>
     <div class="sensor-box pressure" onclick="window.location.href='./selezionato?sensor=pressure'">
         <h3>{{ partite[2]['giocatore1'] }} VS {{ partite[2]['giocatore2'] }}</h3>
         <h4>{{ partite[2]['stato'] }}</h4>
-        <h2>{{ partite[2]['punteggio1'] }}:{{ partite[2]['punteggio2'] }}</h2>
+        <div class="set-scores">
+            {% for i in range(1, 4) %}
+                {% if len(partite[2]['punteggioset' + str(i)]) > 0 %}
+                    <div class="set">
+                        <div class="score">{{ partite[2]['punteggioset' + str(i)][0] }}</div>
+                        <div class="score">{{ partite[2]['punteggioset' + str(i)][1] }}</div>
+                    </div>
+                {% end %}
+            {% end %}
+        </div>
     </div>
     <br>
     <div class="sensor-box light" onclick="window.location.href='./selezionato?sensor=light'">
         <h3>{{ partite[3]['giocatore1'] }} VS {{ partite[3]['giocatore2'] }}</h3>
         <h4>{{ partite[3]['stato'] }}</h4>
-        <h2>{{ partite[3]['punteggio1'] }}:{{ partite[3]['punteggio2'] }}</h2>
+        <div class="set-scores">
+            {% for i in range(1, 4) %}
+                {% if len(partite[3]['punteggioset' + str(i)]) > 0 %}
+                    <div class="set">
+                        <div class="score">{{ partite[3]['punteggioset' + str(i)][0] }}</div>
+                        <div class="score">{{ partite[3]['punteggioset' + str(i)][1] }}</div>
+                    </div>
+                {% end %}
+            {% end %}
+        </div>
     </div>
     <br>
     <div class="sensor-box motion" onclick="window.location.href='./selezionato?sensor=motion'">
-        <h2>🚶 Movimento</h2>
-        <p>Sensore di rilevamento movimento</p>
+        <h3>{{ partite[4]['giocatore1'] }} VS {{ partite[4]['giocatore2'] }}</h3>
+        <h4>{{ partite[4]['stato'] }}</h4>
+        <div class="set-scores">
+            {% for i in range(1, 4) %}
+                {% if len(partite[4]['punteggioset' + str(i)]) > 0 %}
+                    <div class="set">
+                        <div class="score">{{ partite[4]['punteggioset' + str(i)][0] }}</div>
+                        <div class="score">{{ partite[4]['punteggioset' + str(i)][1] }}</div>
+                    </div>
+                {% end %}
+            {% end %}
+        </div>
     </div>
 </div>
 

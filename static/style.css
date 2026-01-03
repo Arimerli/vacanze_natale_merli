@@ -78,3 +78,20 @@ h1 {
 .sensor-box.motion {
     border-top: 4px solid #2ecc71;
 }
+.set-scores {
+    display: flex;
+    gap: 15px;
+}
+
+.set {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.set .score {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #2c3e50;
+}

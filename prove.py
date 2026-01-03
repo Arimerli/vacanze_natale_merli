@@ -1,32 +1,46 @@
-import tornado, asyncio
 import random
-from pymongo import AsyncMongoClient
-async def main():
-    client = AsyncMongoClient('localhost', 27017)
-    db = client['tennis']
-    giocatori = db['giocatori']
-    partite = db['partite']
-    lista_giocatori = []
-    estraggo_gri = giocatori.find()
-    async for gr in estraggo_gri:
-        lista_giocatori.append(gr)
-    i = 7
-    for _ in range(4):
-        n1 = random.randint(0, i)
-        g1 = lista_giocatori.pop(n1)
-        i-=1
-        n2 = random.randint(0, i)
-        g2 = lista_giocatori.pop(n2)
-        i -= 1
-        inserimento = await partite.insert_one({
-            "giocatore1" : g1["nome"],
-            "giocatore2" : g2["nome"],
-            "punteggio" : "0:0",
-            "minutaggio" : 0
-        })
+import time
 
-asyncio.run(main())
-
-
+punt1 = 0
+punt2 = 0
+punti = [0,0]
+game = [0,0]
+while True:
+    vincente = random.randint(0,1)
+    if punti[vincente] == 0:
+        punti[vincente] = 15
+    elif punti[vincente] == 15:
+        punti[vincente] = 30
+    elif punti[vincente] == 30:
+        punti[vincente] = 40
+    else:
+        if punti[1-vincente] == 40:
+            if len(punti) == 2:
+                punti.append(vincente)
+            else:
+                if punti[2]==vincente:
+                    game[vincente]+=1
+                    punti = [0,0]
+                else:
+                    punti.pop(2)
+        else:
+            game[vincente] += 1
+            punti = [0, 0]
+        if game[vincente] == 6 and game[vincente - 1] < 5:
+            punti = [0, 0]
+            game = [0,0]
+            if vincente == 0:
+                punt1 += 1
+            else:
+                punt2 += 1
+        if game[vincente] == 7:
+            punti = [0, 0]
+            game = [0, 0]
+            if vincente == 0:
+                punt1 += 1
+            else:
+                punt2 += 1
+    print(punti, game, punt1, punt2)
+    time.sleep(0.5)
 
 #<p>{{ partite[0]['giocatore1'] }} VS {{ partite[0]['giocatore2'] }}                 {{ partite[0]['setg1'] }}:{{ partite[0]['setg2'] }}</p>
