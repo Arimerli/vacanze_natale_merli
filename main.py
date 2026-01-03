@@ -1,9 +1,22 @@
 import asyncio
+import sys
+
+# Su Windows, forza l'uso di SelectorEventLoop
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 import json
 import logging
 import tornado.web
 import tornado.websocket
 import aiomqtt
+from pymongo import AsyncMongoClient
+
+client = AsyncMongoClient('localhost', 27017)
+db = client['tennis']
+giocatori = db['giocatori']
+partite = db['partite']
+lista_giocatori = []
+lista_partite = []
 
 BROKER = "test.mosquitto.org"
 TOPIC = "sensor/ARIANNA"
@@ -12,7 +25,7 @@ clients = set()
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("index.html")
+        self.render("index.html", partite=lista_partite)
 
 class SelectHandler(tornado.web.RequestHandler):
     def get(self):
@@ -63,9 +76,16 @@ async def main():
             (r"/ws", WSHandler),
             (r"/selezionato", SelectHandler),
         ],
-        template_path="templates",
+        template_path="pagine_web",
+        static_path="static",
     )
 
+    estraggo_gri = giocatori.find()
+    async for gr in estraggo_gri:
+        lista_giocatori.append(gr)
+    estraggo_pars = partite.find()
+    async for par in estraggo_pars:
+        lista_partite.append(par)
     app.listen(8888)
     print("Server Tornado avviato su http://localhost:8888")
 

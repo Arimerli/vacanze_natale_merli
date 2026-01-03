@@ -2,20 +2,44 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sensor Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
 <h1>Dashboard Sensori</h1>
 
-<a href="./selezionato?sensor=temperature">
-<button id="temperature">Temperatura</button>
-</a>
-<a href="./selezionato?sensor=umidity">
-<button id="umidity">Umidità</button>
-</a>
-<a href="./selezionato?sensor=pressure">
-<button id="pressure">Pressione</button>
-</a>
+<div class="container">
+    <div class="sensor-box temperature" onclick="window.location.href='./selezionato?sensor=temperature'">
+        <h3>{{ partite[0]['giocatore1'] }} VS {{ partite[0]['giocatore2'] }}</h3>
+        <h4>{{ partite[0]['stato'] }}</h4>
+        <h2>{{ partite[0]['punteggio1'] }}:{{ partite[0]['punteggio2'] }}</h2>
+    </div>
+    <br>
+    <div class="sensor-box humidity" onclick="window.location.href='./selezionato?sensor=humidity'">
+        <h3>{{ partite[1]['giocatore1'] }} VS {{ partite[1]['giocatore2'] }}</h3>
+        <h4>{{ partite[1]['stato'] }}</h4>
+        <h2>{{ partite[1]['punteggio1'] }}:{{ partite[1]['punteggio2'] }}</h2>
+    </div>
+    <br>
+    <div class="sensor-box pressure" onclick="window.location.href='./selezionato?sensor=pressure'">
+        <h3>{{ partite[2]['giocatore1'] }} VS {{ partite[2]['giocatore2'] }}</h3>
+        <h4>{{ partite[2]['stato'] }}</h4>
+        <h2>{{ partite[2]['punteggio1'] }}:{{ partite[2]['punteggio2'] }}</h2>
+    </div>
+    <br>
+    <div class="sensor-box light" onclick="window.location.href='./selezionato?sensor=light'">
+        <h3>{{ partite[3]['giocatore1'] }} VS {{ partite[3]['giocatore2'] }}</h3>
+        <h4>{{ partite[3]['stato'] }}</h4>
+        <h2>{{ partite[3]['punteggio1'] }}:{{ partite[3]['punteggio2'] }}</h2>
+    </div>
+    <br>
+    <div class="sensor-box motion" onclick="window.location.href='./selezionato?sensor=motion'">
+        <h2>🚶 Movimento</h2>
+        <p>Sensore di rilevamento movimento</p>
+    </div>
+</div>
+
 </body>
 </html>
