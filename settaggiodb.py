@@ -131,15 +131,12 @@ async def aggiungi_elementi(giocatori, partite):
             "punteggioset2": sets[1],
             "punteggioset3": sets[2],
             "vincitore" : vincitore,
-            "stato" : stato
+            "stato" : stato,
+            "partita": "quarti"
         })
-    semifinali = []
-    giocatori = giocatori.find({'qualifica' : 'semifinale'})
-    async for giocatore in giocatori:
-        semifinali.append(giocatore)
     await partite.insert_one({
-        "giocatore1": semifinali[0]["nome"],
-        "giocatore2": semifinali[1]["nome"],
+        "giocatore1": "",
+        "giocatore2": "",
         "minutaggio": 0,
         "punteggioset1": [],
         "punteggioset2": [],

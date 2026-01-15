@@ -25,6 +25,45 @@ TOPIC = "simulatore/ARIANNA"
 
 clients = set()
 
+async def controlla_e_avanza_turno(partita):
+    terminate = 0
+    turno = partita["partita"]
+    if turno == "quarti":
+        quarti = partite.find({"partita" : "quarti"})
+        async for q in quarti:
+            if q["stato"] == "terminata":
+                terminate += 1
+        if terminate == 4:
+            semifinalisti = giocatori.find({"qualifica" : "semifinale"})
+            semifinali = []
+            async for giocatore in semifinalisti:
+                semifinali.append(giocatore)
+            await partite.update_one({"partita":"semifinale1"},{"$set": {"giocatore1": semifinali[0]["nome"], "giocatore2": semifinali[1]["nome"]}})
+            partita = await partite.find_one({"partita":"semifinale1"})
+            asyncio.create_task(simulazione(0, 0, partita["_id"], "punteggioset1"))
+            asyncio.create_task(scorrimemto_tempo(0, partita["_id"]))
+            await partite.update_one({"partita": "semifinale2"},
+                                     {"$set": {"giocatore1": semifinali[2]["nome"], "giocatore2": semifinali[3]["nome"]}})
+            partita = await partite.find_one({"partita": "semifinale2"})
+            asyncio.create_task(simulazione(0, 0, partita["_id"], "punteggioset1"))
+            asyncio.create_task(scorrimemto_tempo(0, partita["_id"]))
+    if turno == "semifinale":
+        semifinali = partite.find({"partita": "semifinale"})
+        async for s in semifinali:
+            if s["stato"] == "terminata":
+                terminate += 1
+        if terminate == 2:
+            finalisti = giocatori.find({"qualifica": "finale"})
+            finali = []
+            async for giocatore in finalisti:
+                finali.append(giocatore)
+            await partite.update_one({"partita": "finale"},
+                                     {"$set": {"giocatore1": finali[0]["nome"], "giocatore2": finali[1]["nome"]}})
+            partita = await partite.find_one({"partita": "finale"})
+            asyncio.create_task(simulazione(0, 0, partita["_id"], "punteggioset1"))
+            asyncio.create_task(scorrimemto_tempo(0, partita["_id"]))
+
+
 async def simulazione(punt1, punt2, id, corso):
     punti = [0, 0]
     game = [0, 0]
@@ -75,9 +114,9 @@ async def simulazione(punt1, punt2, id, corso):
                 vincitore = await giocatori.find_one({"nome": partita["giocatore1"]})
                 if vincitore["qualifica"] == "quarti":
                     await giocatori.update_one({"nome": partita["giocatore1"]}, {"$set": {"qualifica": "semifinale"}})
-                    partita = await partite.find_one({"partita": "semifinale2"})
                 elif vincitore["qualifica"] == "semifinale":
                     await giocatori.update_one({"nome": partita["giocatore1"]}, {"$set": {"qualifica": "finale"}})
+                await controlla_e_avanza_turno(partita)
                 break
             if punt2 == 2:
                 print(punti, game)
@@ -86,25 +125,25 @@ async def simulazione(punt1, punt2, id, corso):
                 vincitore = await giocatori.find_one({"nome" : partita["giocatore2"]})
                 if vincitore["qualifica"] == "quarti":
                     await giocatori.update_one({"nome" : partita["giocatore2"]}, {"$set": {"qualifica" : "semifinale"}})
-                    partita = await partite.find_one({"partita": "semifinale2"})
-                    if partita["giocatore1"] == "":
-                        await partite.update_one({"partita": "semifinale2"}, {"$set": {"giocatore1" : vincitore["nome"]}})
-                    else:
-                        await partite.update_one({"partita": "semifinale2"},
-                                                 {"$set": {"giocatore2": vincitore["nome"]}})
                 elif vincitore["qualifica"] == "semifinale":
                     await giocatori.update_one({"nome" : partita["giocatore2"]}, {"$set": {"qualifica" : "finale"}})
+                await controlla_e_avanza_turno(partita)
                 break
 
         await partite.update_one({"_id": id}, {"$set": {"setincorso": punti}})
         await asyncio.sleep(random.uniform(1.5, 3.5))
 
 async def scorrimemto_tempo(tempo, id):
-    partita = await partite.find_one({"_id": id})
-    while partita["stato"]=="live":
+    while True:
+        partita = await partite.find_one({"_id": id})
+        if partita["stato"] != "live":
+            break
         await asyncio.sleep(1)
         tempo += 1
-        await partite.update_one({"_id": id},{"$set":{"minutaggio":tempo}})
+        await partite.update_one(
+            {"_id": id},
+            {"$set": {"minutaggio": tempo}}
+        )
 
 class MainHandler(tornado.web.RequestHandler):
     inizio = False
@@ -122,7 +161,6 @@ class MainHandler(tornado.web.RequestHandler):
                             punt2 = 1
                             set_incorso = "punteggioset3"
                     else:
-
                         set_incorso = "punteggioset1"
                         if partita["punteggioset1"][1] == 6 or partita["punteggioset1"][1] == 7:
                             punt2 = 1
@@ -131,7 +169,6 @@ class MainHandler(tornado.web.RequestHandler):
                                 punt1 = 1
                                 set_incorso = "punteggioset3"
 
-                    # Rimuovi asyncio.to_thread() - usa direttamente asyncio.create_task()
                     asyncio.create_task(simulazione(punt1, punt2, partita["_id"], set_incorso))
                     asyncio.create_task(scorrimemto_tempo(partita["minutaggio"], partita["_id"]))
             self.__class__.inizio = True
@@ -158,20 +195,20 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
 
 async def richiamo_pagina():
+    terminate = 0
     await asyncio.sleep(5)
-    while True:  # Aggiungi il loop infinito
+    while True:
         lista_partite.clear()
         estraggo_pars = partite.find()
         async for par in estraggo_pars:
             lista_partite.append(par)
-        # inoltro ai client WebSocket
         for c in list(clients):
             try:
-                await c.write_message(json.dumps(lista_partite, default=str))  # Serializza in JSON
+                await c.write_message(json.dumps(lista_partite, default=str))
             except:
                 clients.discard(c)
 
-        await asyncio.sleep(1)  # Attendi 2 secondi prima del prossimo aggiornamento
+        await asyncio.sleep(1)
 
 
 async def main():
