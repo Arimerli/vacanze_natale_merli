@@ -145,8 +145,24 @@ async def aggiungi_elementi(giocatori, partite):
         "punteggioset2": [],
         "punteggioset3": [],
         "vincitore": "",
-        "stato": "programmata"
+        "stato": "programmata",
+        "partita": "semifinale1"
     })
+    partita = "semifinale2"
+    for _ in range(2):
+        await partite.insert_one({
+            "giocatore1": "",
+            "giocatore2": "",
+            "minutaggio": 0,
+            "punteggioset1": [],
+            "punteggioset2": [],
+            "punteggioset3": [],
+            "vincitore": "",
+            "stato": "programmata",
+            "partita" : partita
+        })
+        if _ == 0:
+            partita = "finale"
 
 async def main():
     client = AsyncMongoClient('localhost', 27017)

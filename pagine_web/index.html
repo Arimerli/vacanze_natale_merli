@@ -8,84 +8,112 @@
 </head>
 <body>
 
-<h1>Dashboard Sensori</h1>
+<h1>TennSI</h1>
 
-<div class="container">
-    <div class="sensor-box temperature" onclick="window.location.href='./selezionato?sensor=temperature'">
-        <h3>{{ partite[0]['giocatore1'] }} VS {{ partite[0]['giocatore2'] }}</h3>
-        <h4>{{ partite[0]['stato'] }}</h4>
-        <div class="set-scores">
-            {% for i in range(1, 4) %}
-                {% if len(partite[0]['punteggioset' + str(i)]) > 0 %}
-                    <div class="set">
-                        <div class="score">{{ partite[0]['punteggioset' + str(i)][0] }}</div>
-                        <div class="score">{{ partite[0]['punteggioset' + str(i)][1] }}</div>
+<div class="container" id="partite-container">
+    {% for partita in partite %}
+        <div class="sensor-box light" onclick="window.location.href='./selezionato?id={{ partita["_id"] }}'">
+            <h3>{{ partita['giocatore1'] }} VS {{ partita['giocatore2'] }}</h3>
+            <h4>{{ partita['stato'] }}</h4>
+            <div class="set-scores">
+                {% if len(partita['punteggioset1']) > 0 %}
+                    <div class="set_index">
+                        <div class="score">{{ partita['punteggioset1'][0] }}</div>
+                        <div class="score">{{ partita['punteggioset1'][1] }}</div>
                     </div>
                 {% end %}
-            {% end %}
-        </div>
-    </div>
-    <br>
-    <div class="sensor-box humidity" onclick="window.location.href='./selezionato?sensor=humidity'">
-        <h3>{{ partite[1]['giocatore1'] }} VS {{ partite[1]['giocatore2'] }}</h3>
-        <h4>{{ partite[1]['stato'] }}</h4>
-        <div class="set-scores">
-            {% for i in range(1, 4) %}
-                {% if len(partite[1]['punteggioset' + str(i)]) > 0 %}
-                    <div class="set">
-                        <div class="score">{{ partite[1]['punteggioset' + str(i)][0] }}</div>
-                        <div class="score">{{ partite[1]['punteggioset' + str(i)][1] }}</div>
+                {% if len(partita['punteggioset2']) > 0 %}
+                    <div class="set_index">
+                        <div class="score">{{ partita['punteggioset2'][0] }}</div>
+                        <div class="score">{{ partita['punteggioset2'][1] }}</div>
                     </div>
                 {% end %}
-            {% end %}
-        </div>
-    </div>
-    <br>
-    <div class="sensor-box pressure" onclick="window.location.href='./selezionato?sensor=pressure'">
-        <h3>{{ partite[2]['giocatore1'] }} VS {{ partite[2]['giocatore2'] }}</h3>
-        <h4>{{ partite[2]['stato'] }}</h4>
-        <div class="set-scores">
-            {% for i in range(1, 4) %}
-                {% if len(partite[2]['punteggioset' + str(i)]) > 0 %}
-                    <div class="set">
-                        <div class="score">{{ partite[2]['punteggioset' + str(i)][0] }}</div>
-                        <div class="score">{{ partite[2]['punteggioset' + str(i)][1] }}</div>
+                {% if len(partita['punteggioset3']) > 0 %}
+                    <div class="set_index">
+                        <div class="score">{{ partita['punteggioset3'][0] }}</div>
+                        <div class="score">{{ partita['punteggioset3'][1] }}</div>
                     </div>
                 {% end %}
-            {% end %}
+            </div>
         </div>
-    </div>
-    <br>
-    <div class="sensor-box light" onclick="window.location.href='./selezionato?sensor=light'">
-        <h3>{{ partite[3]['giocatore1'] }} VS {{ partite[3]['giocatore2'] }}</h3>
-        <h4>{{ partite[3]['stato'] }}</h4>
-        <div class="set-scores">
-            {% for i in range(1, 4) %}
-                {% if len(partite[3]['punteggioset' + str(i)]) > 0 %}
-                    <div class="set">
-                        <div class="score">{{ partite[3]['punteggioset' + str(i)][0] }}</div>
-                        <div class="score">{{ partite[3]['punteggioset' + str(i)][1] }}</div>
-                    </div>
-                {% end %}
-            {% end %}
-        </div>
-    </div>
-    <br>
-    <div class="sensor-box motion" onclick="window.location.href='./selezionato?sensor=motion'">
-        <h3>{{ partite[4]['giocatore1'] }} VS {{ partite[4]['giocatore2'] }}</h3>
-        <h4>{{ partite[4]['stato'] }}</h4>
-        <div class="set-scores">
-            {% for i in range(1, 4) %}
-                {% if len(partite[4]['punteggioset' + str(i)]) > 0 %}
-                    <div class="set">
-                        <div class="score">{{ partite[4]['punteggioset' + str(i)][0] }}</div>
-                        <div class="score">{{ partite[4]['punteggioset' + str(i)][1] }}</div>
-                    </div>
-                {% end %}
-            {% end %}
-        </div>
-    </div>
+    {% end %}
 </div>
+
+<script>
+    const ws = new WebSocket('ws://localhost:8888/ws');
+
+    ws.onopen = function() {
+        console.log('WebSocket connesso');
+    };
+
+    ws.onmessage = function(event) {
+        const partite = JSON.parse(event.data);
+        aggiornaPartite(partite);
+    };
+
+    ws.onerror = function(error) {
+        console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = function() {
+        console.log('WebSocket chiuso');
+    };
+
+    function aggiornaPartite(partite) {
+        const container = document.getElementById('partite-container');
+        if (!container) return;
+
+        // Costruisci l'HTML per tutte le partite
+        let html = '';
+
+        partite.forEach(partita => {
+            html += `
+                <div class="sensor-box light" onclick="window.location.href='./selezionato?id=${partita._id.$oid || partita._id}'">
+                    <h3>${partita.giocatore1} VS ${partita.giocatore2}</h3>
+                    <h4>${partita.stato}</h4>
+                    <div class="set-scores">
+            `;
+
+            // Set 1
+            if (partita.punteggioset1 && partita.punteggioset1.length > 0) {
+                html += `
+                    <div class="set_index">
+                        <div class="score">${partita.punteggioset1[0]}</div>
+                        <div class="score">${partita.punteggioset1[1]}</div>
+                    </div>
+                `;
+            }
+
+            // Set 2
+            if (partita.punteggioset2 && partita.punteggioset2.length > 0) {
+                html += `
+                    <div class="set_index">
+                        <div class="score">${partita.punteggioset2[0]}</div>
+                        <div class="score">${partita.punteggioset2[1]}</div>
+                    </div>
+                `;
+            }
+
+            // Set 3
+            if (partita.punteggioset3 && partita.punteggioset3.length > 0) {
+                html += `
+                    <div class="set_index">
+                        <div class="score">${partita.punteggioset3[0]}</div>
+                        <div class="score">${partita.punteggioset3[1]}</div>
+                    </div>
+                `;
+            }
+
+            html += `
+                    </div>
+                </div>
+            `;
+        });
+
+        // Aggiorna il contenuto SENZA ricaricare la pagina
+        container.innerHTML = html;
+    }
+</script>
 
 </body>
 </html>

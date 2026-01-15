@@ -59,17 +59,6 @@ h1 {
     margin-right: 15px;
 }
 
-.sensor-box.temperature {
-    border-top: 4px solid #e74c3c;
-}
-
-.sensor-box.humidity {
-    border-top: 4px solid #3498db;
-}
-
-.sensor-box.pressure {
-    border-top: 4px solid #9b59b6;
-}
 
 .sensor-box.light {
     border-top: 4px solid #f39c12;
@@ -83,15 +72,108 @@ h1 {
     gap: 15px;
 }
 
-.set {
+.set_index {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 5px;
 }
 
-.set .score {
+.set_index .score {
     font-weight: bold;
     font-size: 1.2em;
     color: #2c3e50;
+}
+
+body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+.back {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.status {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.live { background: #ff4757; color: white; }
+.terminata { background: #2ed573; color: white; }
+.programmata { background: #ffa502; color: white; }
+
+.players {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin: 30px 0;
+    color: #333;
+}
+
+.sets {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.set {
+    background: #667eea;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 100px;
+}
+
+.set-title {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.set-score {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.winner {
+    background: #2ed573;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 20px;
+    margin-top: 20px;
+}
+
+.info {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
 }
