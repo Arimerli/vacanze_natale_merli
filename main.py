@@ -11,6 +11,8 @@ import tornado.websocket
 import aiomqtt
 from pymongo import AsyncMongoClient
 
+print("ciao")
+
 client = AsyncMongoClient('localhost', 27017)
 db = client['tennis']
 giocatori = db['giocatori']
