@@ -38,16 +38,16 @@ async def controlla_e_avanza_turno(partita):
             semifinali = []
             async for giocatore in semifinalisti:
                 semifinali.append(giocatore)
-            await partite.update_one({"partita":"semifinale1"},{"$set": {"giocatore1": semifinali[0]["nome"], "giocatore2": semifinali[1]["nome"]}})
+            await partite.update_one({"partita":"semifinale1"},{"$set": {"giocatore1": semifinali[0]["nome"], "giocatore2": semifinali[1]["nome"], "stato" : "live"}})
             partita = await partite.find_one({"partita":"semifinale1"})
             asyncio.create_task(simulazione(0, 0, partita["_id"], "punteggioset1"))
             asyncio.create_task(scorrimemto_tempo(0, partita["_id"]))
             await partite.update_one({"partita": "semifinale2"},
-                                     {"$set": {"giocatore1": semifinali[2]["nome"], "giocatore2": semifinali[3]["nome"]}})
+                                     {"$set": {"giocatore1": semifinali[2]["nome"], "giocatore2": semifinali[3]["nome"], "stato" : "live"}})
             partita = await partite.find_one({"partita": "semifinale2"})
             asyncio.create_task(simulazione(0, 0, partita["_id"], "punteggioset1"))
             asyncio.create_task(scorrimemto_tempo(0, partita["_id"]))
-    if turno == "semifinale":
+    if turno == "semifinale1" or turno == "semifinale2":
         semifinali = partite.find({"partita": "semifinale"})
         async for s in semifinali:
             if s["stato"] == "terminata":
@@ -58,7 +58,7 @@ async def controlla_e_avanza_turno(partita):
             async for giocatore in finalisti:
                 finali.append(giocatore)
             await partite.update_one({"partita": "finale"},
-                                     {"$set": {"giocatore1": finali[0]["nome"], "giocatore2": finali[1]["nome"]}})
+                                     {"$set": {"giocatore1": finali[0]["nome"], "giocatore2": finali[1]["nome"], "stato" : "live"}})
             partita = await partite.find_one({"partita": "finale"})
             asyncio.create_task(simulazione(0, 0, partita["_id"], "punteggioset1"))
             asyncio.create_task(scorrimemto_tempo(0, partita["_id"]))
@@ -93,7 +93,9 @@ async def simulazione(punt1, punt2, id, corso):
                 await partite.update_one({"_id": id}, {"$set": {corso: game}})
                 punti = [0, 0]
             if game[vincente] == 6 and game[vincente - 1] < 5:
-                corso = "punteggioset"+str(int(corso[-1])+1)
+                # PRIMA aggiorna il database con il punteggio finale del set corrente
+                await partite.update_one({"_id": id}, {"$set": {corso: game}})
+                corso = "punteggioset" + str(int(corso[-1]) + 1)
                 punti = [0, 0]
                 game = [0, 0]
                 if vincente == 0:
@@ -101,12 +103,15 @@ async def simulazione(punt1, punt2, id, corso):
                 else:
                     punt2 += 1
             if game[vincente] == 7:
+                await partite.update_one({"_id": id}, {"$set": {corso: game}})
+                corso = "punteggioset" + str(int(corso[-1]) + 1)
                 punti = [0, 0]
                 game = [0, 0]
                 if vincente == 0:
                     punt1 += 1
                 else:
                     punt2 += 1
+
             if punt1 == 2:
                 print(punti, game)
                 partita = await partite.find_one({"_id": id})
@@ -138,7 +143,7 @@ async def scorrimemto_tempo(tempo, id):
         partita = await partite.find_one({"_id": id})
         if partita["stato"] != "live":
             break
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
         tempo += 1
         await partite.update_one(
             {"_id": id},
@@ -176,10 +181,12 @@ class MainHandler(tornado.web.RequestHandler):
         self.render("index.html", partite=lista_partite)
 
 class SelectHandler(tornado.web.RequestHandler):
-    def get(self):
+    async def get(self):
         id = self.get_query_argument("id")
         partita = next((p for p in lista_partite if str(p["_id"]) == id), None)
-        self.render("partita.html", partita=partita)
+        giocatore1 = await giocatori.find_one({"nome":partita["giocatore1"]})
+        giocatore2 = await giocatori.find_one({"nome": partita["giocatore2"]})
+        self.render("partita.html", partita=partita, giocatore1=giocatore1, giocatore2=giocatore2 )
 
 class WSHandler(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):

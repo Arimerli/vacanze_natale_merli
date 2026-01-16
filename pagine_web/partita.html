@@ -10,52 +10,105 @@
     <a href="/" class="back">← Indietro</a>
 
     {% if partita %}
-    <div class="card">
-        <span class="status {{ partita['stato'] }}" id="stato">{{ partita['stato'].upper() }}</span>
-
-        <div class="players" id="players">
-            {{ partita["giocatore1"] }} vs {{ partita["giocatore2"] }}
+    <div class="match-container">
+        <div class="status-bar">
+            <span class="status {{ partita['stato'] }}" id="stato">{{ partita['stato'].upper() }}</span>
         </div>
 
-        <div class="sets" id="sets">
-            {% if len(partita["punteggioset1"]) > 0 %}
-            <div class="set">
-                <div class="set-title">Set 1</div>
-                <div class="set-score" id="set1">{{ partita["punteggioset1"][0] }} - {{ partita["punteggioset1"][1] }}</div>
+        <div class="main-content">
+            <!-- Giocatore 1 -->
+            <div class="player-info" id="player1-info">
+                <h2 id="player1-name">{{ partita["giocatore1"] }}</h2>
+                <div class="player-detail">
+                    <label>Anno di nascita</label>
+                    <span id="player1-nascita">{{ giocatore1["nascita"] }}</span>
+                </div>
+                <div class="player-detail">
+                    <label>Nazionalità</label>
+                    <span id="player1-nazionalita">{{ giocatore1["nazionalita"] }}</span>
+                </div>
+                <div class="player-detail">
+                    <label>Qualifica</label>
+                    <span id="player1-qualifica">{{ giocatore1["qualifica"] }}</span>
+                </div>
             </div>
-            {% end %}
 
-            {% if len(partita["punteggioset2"]) > 0 %}
-            <div class="set">
-                <div class="set-title">Set 2</div>
-                <div class="set-score" id="set2">{{ partita["punteggioset2"][0] }} - {{ partita["punteggioset2"][1] }}</div>
+            <!-- Centro - Punteggio -->
+            <div class="score-center">
+                {% if partita['stato'] == 'live' and len(partita.get('setincorso', [])) > 0 %}
+                <div class="current-game">
+                    <h3>🎾 SET IN CORSO</h3>
+                    <div class="live-score">
+                        <span id="live-score1">{{ partita['setincorso'][0] }}</span>
+                        <span>-</span>
+                        <span id="live-score2">{{ partita['setincorso'][1] }}</span>
+                    </div>
+                </div>
+                {% end %}
+
+                <div class="sets-history">
+                    <h3>Storico Set</h3>
+                    <div id="sets-container">
+                        {% if len(partita["punteggioset1"]) > 0 %}
+                        <div class="set">
+                            <span class="set-title">Set 1</span>
+                            <span class="set-score" id="set1">{{ partita["punteggioset1"][0] }} - {{ partita["punteggioset1"][1] }}</span>
+                        </div>
+                        {% end %}
+
+                        {% if len(partita["punteggioset2"]) > 0 %}
+                        <div class="set">
+                            <span class="set-title">Set 2</span>
+                            <span class="set-score" id="set2">{{ partita["punteggioset2"][0] }} - {{ partita["punteggioset2"][1] }}</span>
+                        </div>
+                        {% end %}
+
+                        {% if len(partita["punteggioset3"]) > 0 %}
+                        <div class="set">
+                            <span class="set-title">Set 3</span>
+                            <span class="set-score" id="set3">{{ partita["punteggioset3"][0] }} - {{ partita["punteggioset3"][1] }}</span>
+                        </div>
+                        {% end %}
+                    </div>
+                </div>
+
+                {% if partita.get('vincitore') %}
+                <div class="winner-banner" id="winner">
+                    🏆 Vincitore: {{ partita["vincitore"] }}
+                </div>
+                {% end %}
+
+                <div class="match-info">
+                    <div>Tempo di gioco</div>
+                    <strong id="minutaggio">{{ partita["minutaggio"] }}</strong>
+                    <span> minuti</span>
+                </div>
             </div>
-            {% end %}
 
-            {% if len(partita["punteggioset3"]) > 0 %}
-            <div class="set">
-                <div class="set-title">Set 3</div>
-                <div class="set-score" id="set3">{{ partita["punteggioset3"][0] }} - {{ partita["punteggioset3"][1] }}</div>
-            </div>
-            {% end %}
-        </div>
-
-        <div class="winner" id="winner" style="display: {% if partita.get('vincitore') %}block{% else %}none{% end %};">
-            {% if partita.get("vincitore") %}
-            🏆 Vincitore: {{ partita["vincitore"] }}
-            {% end %}
-        </div>
-
-        <div class="info">
-            <div class="info-row">
-                <span>Tempo di gioco:</span>
-                <strong id="minutaggio">{{ partita["minutaggio"] }} minuti</strong>
+            <!-- Giocatore 2 -->
+            <div class="player-info" id="player2-info">
+                <h2 id="player2-name">{{ partita["giocatore2"] }}</h2>
+                <div class="player-detail">
+                    <label>Anno di nascita</label>
+                    <span id="player2-nascita">{{ giocatore2["nascita"] }}</span>
+                </div>
+                <div class="player-detail">
+                    <label>Nazionalità</label>
+                    <span id="player2-nazionalita">{{ giocatore2["nazionalita"] }}</span>
+                </div>
+                <div class="player-detail">
+                    <label>Qualifica</label>
+                    <span id="player2-qualifica">{{ giocatore1["qualifica"] }}</span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         const PARTITA_ID = "{{ partita['_id'] }}";
+        const PLAYER1_NAME = "{{ partita['giocatore1'] }}";
+        const PLAYER2_NAME = "{{ partita['giocatore2'] }}";
+
         const ws = new WebSocket('ws://localhost:8888/ws');
 
         ws.onopen = function() {
@@ -63,16 +116,19 @@
         };
 
         ws.onmessage = function(event) {
-            const partite = JSON.parse(event.data);
+            const data = JSON.parse(event.data);
 
-            // Trova solo la partita corrente
-            const partitaCorrente = partite.find(p => {
-                const id = p._id.$oid || p._id;
-                return id.toString() === PARTITA_ID.toString();
-            });
+            // Se i dati contengono informazioni sui giocatori
+            if (Array.isArray(data)) {
+                // Cerca la partita corrente
+                const partitaCorrente = data.find(p => {
+                    const id = p._id.$oid || p._id;
+                    return id.toString() === PARTITA_ID.toString();
+                });
 
-            if (partitaCorrente) {
-                aggiornaDettaglioPartita(partitaCorrente);
+                if (partitaCorrente) {
+                    aggiornaDettaglioPartita(partitaCorrente);
+                }
             }
         };
 
@@ -84,21 +140,52 @@
             console.log('WebSocket chiuso');
         };
 
+        // Carica le informazioni dei giocatori
+        async function caricaInfoGiocatori() {
+            try {
+                const response = await fetch(`/api/giocatori?names=${PLAYER1_NAME},${PLAYER2_NAME}`);
+                const giocatori = await response.json();
+
+                const player1 = giocatori.find(g => g.nome === PLAYER1_NAME);
+                const player2 = giocatori.find(g => g.nome === PLAYER2_NAME);
+
+                if (player1) {
+                    document.getElementById('player1-nascita').textContent = player1.nascita || '-';
+                    document.getElementById('player1-nazionalita').textContent = player1.nazionalita || '-';
+                    document.getElementById('player1-qualifica').textContent = player1.qualifica || '-';
+                }
+
+                if (player2) {
+                    document.getElementById('player2-nascita').textContent = player2.nascita || '-';
+                    document.getElementById('player2-nazionalita').textContent = player2.nazionalita || '-';
+                    document.getElementById('player2-qualifica').textContent = player2.qualifica || '-';
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento info giocatori:', error);
+            }
+        }
+
         function aggiornaDettaglioPartita(partita) {
             // Aggiorna lo stato
             const statoEl = document.getElementById('stato');
             statoEl.textContent = partita.stato.toUpperCase();
             statoEl.className = 'status ' + partita.stato;
 
-            // Aggiorna i set
-            const setsContainer = document.getElementById('sets');
+            // Aggiorna set in corso (se live)
+            if (partita.stato === 'live' && partita.setincorso && partita.setincorso.length > 0) {
+                document.getElementById('live-score1').textContent = partita.setincorso[0];
+                document.getElementById('live-score2').textContent = partita.setincorso[1];
+            }
+
+            // Aggiorna i set completati
+            const setsContainer = document.getElementById('sets-container');
             let setsHtml = '';
 
             if (partita.punteggioset1 && partita.punteggioset1.length > 0) {
                 setsHtml += `
                     <div class="set">
-                        <div class="set-title">Set 1</div>
-                        <div class="set-score">${partita.punteggioset1[0]} - ${partita.punteggioset1[1]}</div>
+                        <span class="set-title">Set 1</span>
+                        <span class="set-score">${partita.punteggioset1[0]} - ${partita.punteggioset1[1]}</span>
                     </div>
                 `;
             }
@@ -106,8 +193,8 @@
             if (partita.punteggioset2 && partita.punteggioset2.length > 0) {
                 setsHtml += `
                     <div class="set">
-                        <div class="set-title">Set 2</div>
-                        <div class="set-score">${partita.punteggioset2[0]} - ${partita.punteggioset2[1]}</div>
+                        <span class="set-title">Set 2</span>
+                        <span class="set-score">${partita.punteggioset2[0]} - ${partita.punteggioset2[1]}</span>
                     </div>
                 `;
             }
@@ -115,8 +202,8 @@
             if (partita.punteggioset3 && partita.punteggioset3.length > 0) {
                 setsHtml += `
                     <div class="set">
-                        <div class="set-title">Set 3</div>
-                        <div class="set-score">${partita.punteggioset3[0]} - ${partita.punteggioset3[1]}</div>
+                        <span class="set-title">Set 3</span>
+                        <span class="set-score">${partita.punteggioset3[0]} - ${partita.punteggioset3[1]}</span>
                     </div>
                 `;
             }
@@ -125,21 +212,24 @@
 
             // Aggiorna vincitore
             const winnerEl = document.getElementById('winner');
-            if (partita.vincitore) {
+            if (partita.vincitore && winnerEl) {
                 winnerEl.textContent = `🏆 Vincitore: ${partita.vincitore}`;
                 winnerEl.style.display = 'block';
-            } else {
-                winnerEl.style.display = 'none';
             }
 
             // Aggiorna minutaggio
-            document.getElementById('minutaggio').textContent = `${partita.minutaggio} minuti`;
+            document.getElementById('minutaggio').textContent = partita.minutaggio;
         }
+
+        // Carica le info dei giocatori all'avvio
+        caricaInfoGiocatori();
     </script>
 
     {% else %}
-    <div class="card">
-        <h2>Partita non trovata</h2>
+    <div class="match-container">
+        <div class="main-content">
+            <h2>Partita non trovata</h2>
+        </div>
     </div>
     {% end %}
 </body>

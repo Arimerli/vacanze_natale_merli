@@ -108,9 +108,10 @@ async def aggiungi_elementi(giocatori, partite):
                                            {'$set': {'qualifica': "semifinale"}})
             stato = "terminata"
         else:
-            minutaggio = random.randint(60, 120)
+            minutaggio = 0
             stato = "live"
             for x in range(random.randint(1,2)):
+                minutaggio += random.randint(30, 60)
                 setg1,setg2,sets[x] = simulo_set(setg1,setg2)
                 if setg2 == 2 or setg1 == 2:
                     if setg1 == 2:
@@ -160,6 +161,7 @@ async def aggiungi_elementi(giocatori, partite):
         })
         if _ == 0:
             partita = "finale"
+
 
 async def main():
     client = AsyncMongoClient('localhost', 27017)
