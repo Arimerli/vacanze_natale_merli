@@ -3,109 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sensor Dashboard</title>
+    <title>TennSI - Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<h1>TennSI</h1>
+<h1>TennSI Live</h1>
 
 <div class="container" id="partite-container">
-    {% for partita in partite %}
-        <div class="sensor-box light" onclick="window.location.href='./selezionato?id={{ partita["_id"] }}'">
-            <h3>{{ partita['giocatore1'] }} VS {{ partita['giocatore2'] }}</h3>
-            <h4>{{ partita['stato'] }}</h4>
-            <div class="set-scores">
-                {% if len(partita['punteggioset1']) > 0 %}
-                    <div class="set_index">
-                        <div class="score">{{ partita['punteggioset1'][0] }}</div>
-                        <div class="score">{{ partita['punteggioset1'][1] }}</div>
+    {# Ordinamento lato server: Live in cima #}
+    {% set partite_ordinate = sorted(partite, key=lambda x: x.get('stato', '').lower() != 'live') %}
+
+    {% for partita in partite_ordinate %}
+        {% if len(partita.get('punteggioset1', [])) > 0 %}
+            <div class="sensor-box" onclick="window.location.href='./selezionato?id={{ partita["_id"] }}'">
+
+                <div class="match-info-main" style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                        <span class="status {% if partita['stato'].lower() == 'live' %}live{% else %}terminata{% end %}">
+                            {{ partita['stato'] }}
+                        </span>
+                        <p style="color: #f1c40f; font-size: 0.8em; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                            {{ partita.get('partita', 'Incontro') }}
+                        </p>
                     </div>
-                {% end %}
-                {% if len(partita['punteggioset2']) > 0 %}
-                    <div class="set_index">
-                        <div class="score">{{ partita['punteggioset2'][0] }}</div>
-                        <div class="score">{{ partita['punteggioset2'][1] }}</div>
-                    </div>
-                {% end %}
-                {% if len(partita['punteggioset3']) > 0 %}
-                    <div class="set_index">
-                        <div class="score">{{ partita['punteggioset3'][0] }}</div>
-                        <div class="score">{{ partita['punteggioset3'][1] }}</div>
-                    </div>
-                {% end %}
+                    <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {{ partita['giocatore1'] }} VS {{ partita['giocatore2'] }}
+                    </h3>
+                </div>
+
+                <div class="set-scores" style="display: flex; gap: 10px; margin-left: 20px;">
+                    {% if len(partita.get('punteggioset1', [])) > 0 %}
+                        <div class="set_index" style="min-width: 45px; text-align: center;">
+                            <span style="font-size: 0.6em; color: #666; display: block;">SET 1</span>
+                            <div class="score">{{ partita['punteggioset1'][0] }}</div>
+                            <div class="score">{{ partita['punteggioset1'][1] }}</div>
+                        </div>
+                    {% end %}
+                    {% if len(partita.get('punteggioset2', [])) > 0 %}
+                        <div class="set_index" style="min-width: 45px; text-align: center;">
+                            <span style="font-size: 0.6em; color: #666; display: block;">SET 2</span>
+                            <div class="score">{{ partita['punteggioset2'][0] }}</div>
+                            <div class="score">{{ partita['punteggioset2'][1] }}</div>
+                        </div>
+                    {% end %}
+                    {% if len(partita.get('punteggioset3', [])) > 0 %}
+                        <div class="set_index" style="min-width: 45px; text-align: center;">
+                            <span style="font-size: 0.6em; color: #666; display: block;">SET 3</span>
+                            <div class="score">{{ partita['punteggioset3'][0] }}</div>
+                            <div class="score">{{ partita['punteggioset3'][1] }}</div>
+                        </div>
+                    {% end %}
+                </div>
+
+                <div style="color: #f1c40f; font-size: 1.5em; margin-left: 15px; font-weight: bold;">&rsaquo;</div>
             </div>
-        </div>
+        {% end %}
     {% end %}
 </div>
 
 <script>
-    const ws = new WebSocket('ws://localhost:8888/ws');
-
-    ws.onopen = function() {
-        console.log('WebSocket connesso');
-    };
+    const ws = new WebSocket('ws://' + window.location.host + '/ws');
 
     ws.onmessage = function(event) {
         const partite = JSON.parse(event.data);
         aggiornaPartite(partite);
     };
 
-    ws.onerror = function(error) {
-        console.error('WebSocket error:', error);
-    };
-
-    ws.onclose = function() {
-        console.log('WebSocket chiuso');
-    };
-
     function aggiornaPartite(partite) {
         const container = document.getElementById('partite-container');
         if (!container) return;
 
-        // Costruisci l'HTML per tutte le partite
         let html = '';
+        const partiteAttive = partite
+            .filter(p => p.punteggioset1 && p.punteggioset1.length > 0)
+            .sort((a, b) => {
+                const sA = a.stato.toLowerCase();
+                const sB = b.stato.toLowerCase();
+                if (sA === 'live' && sB !== 'live') return -1;
+                if (sA !== 'live' && sB === 'live') return 1;
+                return 0;
+            });
 
-        partite.forEach(partita => {
+        if (partiteAttive.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#666;'>In attesa di match...</p>";
+            return;
+        }
+
+        partiteAttive.forEach(p => {
+            const idPartita = p._id.$oid || p._id;
+            const isLive = p.stato.toLowerCase() === 'live' ? 'live' : 'terminata';
+            const tipoPartita = p.partita || 'Incontro';
+
             html += `
-                <div class="sensor-box light" onclick="window.location.href='./selezionato?id=${partita._id.$oid || partita._id}'">
-                    <h3>${partita.giocatore1} VS ${partita.giocatore2}</h3>
-                    <h4>${partita.stato}</h4>
-                    <div class="set-scores">
+                <div class="sensor-box" onclick="window.location.href='./selezionato?id=${idPartita}'">
+                    <div class="match-info-main" style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                            <span class="status ${isLive}">${p.stato}</span>
+                            <p style="color: #f1c40f; font-size: 0.8em; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                                ${tipoPartita}
+                            </p>
+                        </div>
+                        <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${p.giocatore1} VS ${p.giocatore2}
+                        </h3>
+                    </div>
+                    <div class="set-scores" style="display: flex; gap: 10px; margin-left: 20px;">
             `;
 
-            // Set 1
-            if (partita.punteggioset1 && partita.punteggioset1.length > 0) {
-                html += `
-                    <div class="set_index">
-                        <div class="score">${partita.punteggioset1[0]}</div>
-                        <div class="score">${partita.punteggioset1[1]}</div>
-                    </div>
-                `;
-            }
-
-            // Set 2
-            if (partita.punteggioset2 && partita.punteggioset2.length > 0) {
-                html += `
-                    <div class="set_index">
-                        <div class="score">${partita.punteggioset2[0]}</div>
-                        <div class="score">${partita.punteggioset2[1]}</div>
-                    </div>
-                `;
-            }
-
-            // Set 3
-            if (partita.punteggioset3 && partita.punteggioset3.length > 0) {
-                html += `
-                    <div class="set_index">
-                        <div class="score">${partita.punteggioset3[0]}</div>
-                        <div class="score">${partita.punteggioset3[1]}</div>
-                    </div>
-                `;
+            for(let i=1; i<=3; i++) {
+                const pset = p[`punteggioset${i}`];
+                if (pset && pset.length > 0) {
+                    html += `
+                        <div class="set_index" style="min-width: 45px; text-align: center;">
+                            <span style="font-size: 0.6em; color: #666; display: block;">SET ${i}</span>
+                            <div class="score">${pset[0]}</div>
+                            <div class="score">${pset[1]}</div>
+                        </div>
+                    `;
+                }
             }
 
             html += `
                     </div>
+                    <div style="color: #f1c40f; font-size: 1.5em; margin-left: 15px; font-weight: bold;">&rsaquo;</div>
                 </div>
             `;
         });

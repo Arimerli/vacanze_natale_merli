@@ -1,75 +1,108 @@
-body {
-    font-family: Arial, sans-serif;
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    background-image: radial-gradient(circle at 50% 0%, #242424 0%, #121212 100%);
+    min-height: 100vh;
     padding: 20px;
-    background-color: #f5f5f5;
+    color: #eee;
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: #f1c40f;
+    font-size: 3.5em;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-style: italic;
+    margin: 40px 0;
+    letter-spacing: -2px;
+    text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
 }
 
+/* Link Indietro */
+.back {
+    display: inline-block;
+    color: #000;
+    text-decoration: none;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background: #f1c40f;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.back:hover {
+    background: #d4ac0d;
+    transform: scale(1.05);
+}
+
+/* Container per lista partite (index) */
 .container {
-    display: flex;  /* CAMBIA da grid a flex */
-    flex-direction: column;  /* Uno sotto l'altro */
+    display: flex;
+    flex-direction: column;
     gap: 20px;
-    max-width: 800px;  /* Larghezza massima più ampia */
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
 }
 
 .sensor-box {
-    background: white;
+    background: #1e1e1e;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     min-width: 0;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 20px 25px;
+    border-radius: 12px;
+    border-left: 6px solid #f1c40f;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;  /* AGGIUNGI: occupa tutta la larghezza */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    width: 100%;
 }
 
 .sensor-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transform: translateX(10px);
+    background: #252525;
+    box-shadow: 0 8px 25px rgba(241, 196, 15, 0.15);
 }
 
-.sensor-box h2 {
+.sensor-box h3 {
     margin: 0;
-    color: #2c3e50;
+    color: #ffffff;
     font-size: 1.5em;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
-.sensor-box p {
+.sensor-box h4 {
     margin: 0;
-    color: #7f8c8d;
-    font-size: 0.9em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
-    margin-right: 15px;
+    color: #f1c40f;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
-
 
 .sensor-box.light {
-    border-top: 4px solid #f39c12;
+    border-top: none; /* Rimosso vecchio stile */
 }
 
-.sensor-box.motion {
-    border-top: 4px solid #2ecc71;
-}
 .set-scores {
     display: flex;
     gap: 15px;
+    background: rgba(0,0,0,0.3);
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 1px solid #333;
 }
 
 .set_index {
@@ -80,159 +113,65 @@ h1 {
 }
 
 .set_index .score {
-    font-weight: bold;
-    font-size: 1.2em;
-    color: #2c3e50;
+    font-weight: 800;
+    font-size: 1.4em;
+    color: #f1c40f;
 }
 
-body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-.back {
-    display: inline-block;
-    padding: 10px 15px;
-    background: #333;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-.card {
-    background: white;
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.status {
-    display: inline-block;
-    padding: 5px 15px;
-    border-radius: 15px;
-    font-size: 14px;
-    margin-bottom: 20px;
-}
-
-.live { background: #ff4757; color: white; }
-.terminata { background: #2ed573; color: white; }
-.programmata { background: #ffa502; color: white; }
-
-.players {
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    margin: 30px 0;
-    color: #333;
-}
-
-.sets {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin: 30px 0;
-}
-
-.set {
-    background: #667eea;
-    color: white;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-    min-width: 100px;
-}
-
-.set-title {
-    font-size: 12px;
-    margin-bottom: 8px;
-}
-
-.set-score {
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.winner {
-    background: #2ed573;
-    color: white;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 20px;
-    margin-top: 20px;
-}
-
-.info {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #ddd;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-}
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.back {
-    display: inline-block;
-    color: white;
-    text-decoration: none;
-    font-size: 18px;
-    margin-bottom: 20px;
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    transition: background 0.3s;
-}
-
-.back:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
+/* Container dettaglio partita */
 .match-container {
     max-width: 1200px;
     margin: 0 auto;
-    background: white;
+    background: #1e1e1e;
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     overflow: hidden;
+    border: 1px solid #333;
 }
 
 .status-bar {
-    background: linear-gradient(90deg, #667eea, #764ba2);
-    color: white;
+    background: linear-gradient(90deg, #f1c40f, #d4ac0d);
+    color: #000;
     padding: 15px;
     text-align: center;
-    font-weight: bold;
+    font-weight: 900;
     font-size: 18px;
+    text-transform: uppercase;
 }
 
-.status.live {
-    animation: pulse 2s infinite;
+/* Status badges */
+.status {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+.status.live, .live {
+    background: #f1c40f;
+    color: #000;
+    animation: pulse-yellow 2s infinite;
 }
 
+@keyframes pulse-yellow {
+    0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(241, 196, 15, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
+}
+
+.terminata {
+    background: #2ecc71;
+    color: white;
+}
+
+.programmata {
+    background: #444;
+    color: white;
+}
+
+/* Layout principale dettaglio */
 .main-content {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
@@ -241,25 +180,21 @@ body {
     align-items: start;
 }
 
+/* Info giocatori */
 .player-info {
-    background: #f8f9fa;
+    background: #252525;
     padding: 25px;
     border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
 }
 
 .player-info h2 {
-    color: #667eea;
+    color: #f1c40f;
     margin-bottom: 20px;
     font-size: 24px;
-    border-bottom: 3px solid #667eea;
+    border-bottom: 3px solid #f1c40f;
     padding-bottom: 10px;
-}
-
-.player-detail {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
 }
 
 .player-detail label {
@@ -272,14 +207,10 @@ body {
 
 .player-detail span {
     font-size: 18px;
-    color: #333;
+    color: #eee;
 }
 
-.flag {
-    font-size: 24px;
-    margin-left: 10px;
-}
-
+/* Sezione punteggio centrale */
 .score-center {
     display: flex;
     flex-direction: column;
@@ -287,36 +218,31 @@ body {
 }
 
 .current-game {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #f1c40f 0%, #d4ac0d 100%);
+    color: #000;
     padding: 30px;
     border-radius: 15px;
     text-align: center;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.current-game h3 {
-    font-size: 16px;
-    margin-bottom: 15px;
-    opacity: 0.9;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .live-score {
     display: flex;
     justify-content: space-around;
     font-size: 48px;
-    font-weight: bold;
+    font-weight: 900;
     margin: 10px 0;
 }
 
 .sets-history {
-    background: #f8f9fa;
+    background: #252525;
     padding: 20px;
     border-radius: 15px;
+    border: 1px solid #333;
 }
 
 .sets-history h3 {
-    color: #667eea;
+    color: #f1c40f;
     margin-bottom: 15px;
     font-size: 18px;
 }
@@ -326,25 +252,26 @@ body {
     justify-content: space-between;
     padding: 15px;
     margin-bottom: 10px;
-    background: white;
+    background: #1e1e1e;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
 }
 
 .set-title {
     font-weight: bold;
-    color: #667eea;
+    color: #f1c40f;
 }
 
 .set-score {
     font-size: 20px;
     font-weight: bold;
-    color: #333;
+    color: #eee;
 }
 
 .winner-banner {
-    background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
-    color: white;
+    background: linear-gradient(90deg, #f1c40f 0%, #d4ac0d 100%);
+    color: #000;
     padding: 20px;
     text-align: center;
     font-size: 24px;
@@ -354,7 +281,7 @@ body {
 }
 
 .match-info {
-    background: #e9ecef;
+    background: #252525;
     padding: 20px;
     border-radius: 15px;
     margin-top: 20px;
@@ -363,9 +290,10 @@ body {
 
 .match-info strong {
     font-size: 24px;
-    color: #667eea;
+    color: #f1c40f;
 }
 
+/* Responsive */
 @media (max-width: 968px) {
     .main-content {
         grid-template-columns: 1fr;

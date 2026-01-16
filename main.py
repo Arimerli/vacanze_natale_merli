@@ -28,6 +28,7 @@ clients = set()
 async def controlla_e_avanza_turno(partita):
     terminate = 0
     turno = partita["partita"]
+    print(turno)
     if turno == "quarti":
         quarti = partite.find({"partita" : "quarti"})
         async for q in quarti:
@@ -48,7 +49,9 @@ async def controlla_e_avanza_turno(partita):
             asyncio.create_task(simulazione(0, 0, partita["_id"], "punteggioset1"))
             asyncio.create_task(scorrimemto_tempo(0, partita["_id"]))
     if turno == "semifinale1" or turno == "semifinale2":
-        semifinali = partite.find({"partita": "semifinale"})
+        semifinali=partite.find({
+            "partita" : { "$in" : ["semifinale1", "semifinale2"]}
+        })
         async for s in semifinali:
             if s["stato"] == "terminata":
                 terminate += 1
@@ -67,8 +70,14 @@ async def controlla_e_avanza_turno(partita):
 async def simulazione(punt1, punt2, id, corso):
     punti = [0, 0]
     game = [0, 0]
+    partita = await partite.find_one({"_id": id})
+    g1 = await giocatori.find_one({"nome": partita["giocatore1"]})
+    g2 = await giocatori.find_one({"nome": partita["giocatore2"]})
     while True:
-        vincente = random.randint(0, 1)
+        prob1 = (g1["forza"] / (g1["forza"] + g2["forza"])) * 100
+        print(prob1)
+        prob2 = 100 - prob1
+        vincente = random.choices([0, 1], weights=[prob1, prob2], k=1)[0]
         if punti[vincente] == 0:
             punti[vincente] = 15
         elif punti[vincente] == 15:
@@ -158,6 +167,8 @@ class MainHandler(tornado.web.RequestHandler):
             for partita in lista_partite:
                 punt2 = 0
                 punt1 = 0
+                if partita["stato"] == "terminata":
+                    await controlla_e_avanza_turno(partita)
                 if partita["stato"] == "live":
                     if partita["punteggioset1"][0] == 6 or partita["punteggioset1"][0] == 7:
                         punt1 = 1

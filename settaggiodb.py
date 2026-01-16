@@ -2,8 +2,11 @@ import tornado, asyncio, random
 from pymongo import AsyncMongoClient
 
 
-def simulo_set(setg1, setg2):
-    win = random.randint(0, 1)
+def simulo_set(setg1, setg2, f1, f2):
+    prob1 = (f1/(f1+f2))*100
+    print(prob1)
+    prob2 = 100 - prob1
+    win = random.choices([0,1], weights=[prob1,prob2], k=1)[0]
     set = []
     gameperdente = random.randint(0, 5)
     if win == 0:
@@ -30,49 +33,57 @@ async def aggiungi_elementi(giocatori, partite):
                 "nome": "Carlos Alcaraz",
                 "nascita": 2003,
                 "nazionalita": "Spagna",
-                "qualifica" : "quarti"
+                "qualifica" : "quarti",
+                "forza" : 98
             },
             {
                 "nome": "Jannik Sinner",
                 "nascita": 2001,
                 "nazionalita": "Italia",
-                "qualifica": "quarti"
+                "qualifica": "quarti",
+                "forza" : 96
             },
             {
                 "nome": "Alexander Zverev",
                 "nascita": 1997,
                 "nazionalita": "Germania",
-                "qualifica": "quarti"
+                "qualifica": "quarti",
+                "forza": 90
             },
             {
                 "nome": "Novak Djoković",
                 "nascita": 1987,
                 "nazionalita": "Serbia",
-                "qualifica": "quarti"
+                "qualifica": "quarti",
+                "forza": 94
             },
             {
                 "nome": "Félix Auger-Aliassime",
                 "nascita": 2000,
                 "nazionalita": "Canada",
-                "qualifica": "quarti"
+                "qualifica": "quarti",
+                "forza": 86
             },
             {
                 "nome": "Taylor Fritz",
                 "nascita": 1997,
                 "nazionalita": "USA",
-                "qualifica": "quarti"
+                "qualifica": "quarti",
+                "forza": 84
             },
             {
                 "nome": "Alex de Minaur",
                 "nascita": 1999,
                 "nazionalita": "Australia",
-                "qualifica": "quarti"
+                "qualifica": "quarti",
+                "forza": 85
             },
             {
                 "nome": "Lorenzo Musetti",
                 "nascita": 2002,
                 "nazionalita": "Italia",
-                "qualifica": "quarti"
+                "qualifica": "quarti",
+                "forza": 87
             },
         ]
     )
@@ -95,7 +106,7 @@ async def aggiungi_elementi(giocatori, partite):
         if i >= 3:
             minutaggio = random.randint(120, 180)
             for set in range(3):
-                setg1,setg2,sets[set]= simulo_set(setg1,setg2)
+                setg1,setg2,sets[set]= simulo_set(setg1,setg2, g1["forza"], g2["forza"])
                 if setg2 == 2 or setg1 == 2:
                     break
             if setg2 == 2 :
@@ -112,7 +123,7 @@ async def aggiungi_elementi(giocatori, partite):
             stato = "live"
             for x in range(random.randint(1,2)):
                 minutaggio += random.randint(30, 60)
-                setg1,setg2,sets[x] = simulo_set(setg1,setg2)
+                setg1,setg2,sets[x] = simulo_set(setg1,setg2, g1["forza"], g2["forza"])
                 if setg2 == 2 or setg1 == 2:
                     if setg1 == 2:
                         vincitore = g1["nome"]
