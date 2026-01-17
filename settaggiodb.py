@@ -1,5 +1,6 @@
 import tornado, asyncio, random
 from pymongo import AsyncMongoClient
+import os
 
 
 def simulo_set(setg1, setg2, f1, f2):
@@ -175,7 +176,8 @@ async def aggiungi_elementi(giocatori, partite):
 
 
 async def main():
-    client = AsyncMongoClient('localhost', 27017)
+    MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
+    client = AsyncMongoClient(MONGO_HOST, 27017)
     db = client['tennis']
     giocatori = db['giocatori']
     await giocatori.delete_many({})

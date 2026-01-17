@@ -16,7 +16,6 @@
         </div>
 
         <div class="main-content">
-            <!-- Giocatore 1 -->
             <div class="player-info" id="player1-info">
                 <h2 id="player1-name">{{ partita["giocatore1"] }}</h2>
                 <div class="player-detail">
@@ -33,7 +32,6 @@
                 </div>
             </div>
 
-            <!-- Centro - Punteggio -->
             <div class="score-center">
                 {% if partita['stato'] == 'live' and len(partita.get('setincorso', [])) > 0 %}
                 <div class="current-game">
@@ -85,7 +83,6 @@
                 </div>
             </div>
 
-            <!-- Giocatore 2 -->
             <div class="player-info" id="player2-info">
                 <h2 id="player2-name">{{ partita["giocatore2"] }}</h2>
                 <div class="player-detail">
@@ -118,9 +115,7 @@
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
 
-            // Se i dati contengono informazioni sui giocatori
             if (Array.isArray(data)) {
-                // Cerca la partita corrente
                 const partitaCorrente = data.find(p => {
                     const id = p._id.$oid || p._id;
                     return id.toString() === PARTITA_ID.toString();
@@ -140,7 +135,6 @@
             console.log('WebSocket chiuso');
         };
 
-        // Carica le informazioni dei giocatori
         async function caricaInfoGiocatori() {
             try {
                 const response = await fetch(`/api/giocatori?names=${PLAYER1_NAME},${PLAYER2_NAME}`);
@@ -166,18 +160,15 @@
         }
 
         function aggiornaDettaglioPartita(partita) {
-            // Aggiorna lo stato
             const statoEl = document.getElementById('stato');
             statoEl.textContent = partita.stato.toUpperCase();
             statoEl.className = 'status ' + partita.stato;
 
-            // Aggiorna set in corso (se live)
             if (partita.stato === 'live' && partita.setincorso && partita.setincorso.length > 0) {
                 document.getElementById('live-score1').textContent = partita.setincorso[0];
                 document.getElementById('live-score2').textContent = partita.setincorso[1];
             }
 
-            // Aggiorna i set completati
             const setsContainer = document.getElementById('sets-container');
             let setsHtml = '';
 
@@ -210,18 +201,15 @@
 
             setsContainer.innerHTML = setsHtml;
 
-            // Aggiorna vincitore
             const winnerEl = document.getElementById('winner');
             if (partita.vincitore && winnerEl) {
                 winnerEl.textContent = `🏆 Vincitore: ${partita.vincitore}`;
                 winnerEl.style.display = 'block';
             }
 
-            // Aggiorna minutaggio
             document.getElementById('minutaggio').textContent = partita.minutaggio;
         }
 
-        // Carica le info dei giocatori all'avvio
         caricaInfoGiocatori();
     </script>
 

@@ -1,19 +1,19 @@
 import asyncio
 import random
 import sys
-import time
 
-# Su Windows, forza l'uso di SelectorEventLoop
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 import json
 import logging
 import tornado.web
 import tornado.websocket
-import aiomqtt
 from pymongo import AsyncMongoClient
+import os
 
-client = AsyncMongoClient('localhost', 27017)
+
+MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
+client = AsyncMongoClient(MONGO_HOST, 27017)
 db = client['tennis']
 giocatori = db['giocatori']
 partite = db['partite']
@@ -28,7 +28,6 @@ clients = set()
 async def controlla_e_avanza_turno(partita):
     terminate = 0
     turno = partita["partita"]
-    print(turno)
     if turno == "quarti":
         quarti = partite.find({"partita" : "quarti"})
         async for q in quarti:
@@ -75,7 +74,6 @@ async def simulazione(punt1, punt2, id, corso):
     g2 = await giocatori.find_one({"nome": partita["giocatore2"]})
     while True:
         prob1 = (g1["forza"] / (g1["forza"] + g2["forza"])) * 100
-        print(prob1)
         prob2 = 100 - prob1
         vincente = random.choices([0, 1], weights=[prob1, prob2], k=1)[0]
         if punti[vincente] == 0:
@@ -91,14 +89,12 @@ async def simulazione(punt1, punt2, id, corso):
                 else:
                     if punti[2] == vincente:
                         game[vincente] += 1
-                        print(punti,game)
                         await partite.update_one({"_id": id}, {"$set": {corso: game}})
                         punti = [0, 0]
                     else:
                         punti.pop(2)
             else:
                 game[vincente] += 1
-                print(punti, game)
                 await partite.update_one({"_id": id}, {"$set": {corso: game}})
                 punti = [0, 0]
             if game[vincente] == 6 and game[vincente - 1] < 5:
@@ -122,7 +118,6 @@ async def simulazione(punt1, punt2, id, corso):
                     punt2 += 1
 
             if punt1 == 2:
-                print(punti, game)
                 partita = await partite.find_one({"_id": id})
                 await partite.update_one({"_id": id}, {"$set": {"vincitore": partita["giocatore1"], "stato": "terminata"}})
                 vincitore = await giocatori.find_one({"nome": partita["giocatore1"]})
@@ -133,7 +128,6 @@ async def simulazione(punt1, punt2, id, corso):
                 await controlla_e_avanza_turno(partita)
                 break
             if punt2 == 2:
-                print(punti, game)
                 partita = await partite.find_one({"_id": id})
                 await partite.update_one({"_id": id}, {"$set": {"vincitore": partita["giocatore2"], "stato": "terminata"}})
                 vincitore = await giocatori.find_one({"nome" : partita["giocatore2"]})

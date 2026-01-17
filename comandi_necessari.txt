@@ -1,0 +1,7 @@
+Si entra nella cartella relativa al progetto. E si eseguono i seguenti comandi:
+- docker-compose build
+- docker-compose up -d mongodb
+(aspettare almeno 5 secondo che mongodb si avvii)
+- docker-compose run --rm web python settaggiodb.py
+- docker-compose up
+avviare su un motore di ricerca il link: http://localhost:8888

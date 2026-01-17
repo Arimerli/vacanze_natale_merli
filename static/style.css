@@ -25,7 +25,6 @@ h1 {
     text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
 }
 
-/* Link Indietro */
 .back {
     display: inline-block;
     color: #000;
@@ -44,7 +43,6 @@ h1 {
     transform: scale(1.05);
 }
 
-/* Container per lista partite (index) */
 .container {
     display: flex;
     flex-direction: column;
@@ -118,7 +116,6 @@ h1 {
     color: #f1c40f;
 }
 
-/* Container dettaglio partita */
 .match-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -139,7 +136,6 @@ h1 {
     text-transform: uppercase;
 }
 
-/* Status badges */
 .status {
     display: inline-block;
     padding: 5px 15px;
@@ -171,7 +167,6 @@ h1 {
     color: white;
 }
 
-/* Layout principale dettaglio */
 .main-content {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
@@ -180,7 +175,6 @@ h1 {
     align-items: start;
 }
 
-/* Info giocatori */
 .player-info {
     background: #252525;
     padding: 25px;
@@ -293,7 +287,6 @@ h1 {
     color: #f1c40f;
 }
 
-/* Responsive */
 @media (max-width: 968px) {
     .main-content {
         grid-template-columns: 1fr;
