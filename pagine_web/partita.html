@@ -135,29 +135,6 @@
             console.log('WebSocket chiuso');
         };
 
-        async function caricaInfoGiocatori() {
-            try {
-                const response = await fetch(`/api/giocatori?names=${PLAYER1_NAME},${PLAYER2_NAME}`);
-                const giocatori = await response.json();
-
-                const player1 = giocatori.find(g => g.nome === PLAYER1_NAME);
-                const player2 = giocatori.find(g => g.nome === PLAYER2_NAME);
-
-                if (player1) {
-                    document.getElementById('player1-nascita').textContent = player1.nascita || '-';
-                    document.getElementById('player1-nazionalita').textContent = player1.nazionalita || '-';
-                    document.getElementById('player1-qualifica').textContent = player1.qualifica || '-';
-                }
-
-                if (player2) {
-                    document.getElementById('player2-nascita').textContent = player2.nascita || '-';
-                    document.getElementById('player2-nazionalita').textContent = player2.nazionalita || '-';
-                    document.getElementById('player2-qualifica').textContent = player2.qualifica || '-';
-                }
-            } catch (error) {
-                console.error('Errore nel caricamento info giocatori:', error);
-            }
-        }
 
         function aggiornaDettaglioPartita(partita) {
             const statoEl = document.getElementById('stato');
@@ -210,7 +187,6 @@
             document.getElementById('minutaggio').textContent = partita.minutaggio;
         }
 
-        caricaInfoGiocatori();
     </script>
 
     {% else %}
